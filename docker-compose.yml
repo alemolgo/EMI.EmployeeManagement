@@ -1,0 +1,53 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: emi-postgres
+    restart: unless-stopped
+    entrypoint: ["/docker-init/entrypoint.sh"]
+    command: ["postgres"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-emi}
+      POSTGRES_USER: ${POSTGRES_USER:-postgresqluser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgressqlpass}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - emi_pgdata:/var/lib/postgresql/data
+      - ./database/docker-init/entrypoint.sh:/docker-init/entrypoint.sh:ro
+      - ./database/docker-init/apply_schema.sh:/docker-init/apply_schema.sh:ro
+      - "./database/Table Scripts:/scripts:ro"
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /var/lib/postgresql/data/.emi-schema-ready && pg_isready -U ${POSTGRES_USER:-postgresqluser} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emi-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__PostgreSql: "Host=db;Port=5432;Database=${POSTGRES_DB:-emi};Username=${POSTGRES_USER:-postgresqluser};Password=${POSTGRES_PASSWORD:-postgressqlpass}"
+      Jwt__Key: ${JWT_KEY:-THIS_IS_MY_SUPER_SECRET_KEY_123456}
+      Jwt__Issuer: ${JWT_ISSUER:-Co.Appinit.API}
+      Jwt__Audience: ${JWT_AUDIENCE:-Co.Appinit.Client}
+      Jwt__ExpireMinutes: ${JWT_EXPIRE_MINUTES:-60}
+
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+
+volumes:
+  emi_pgdata:

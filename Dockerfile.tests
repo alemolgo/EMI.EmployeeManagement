@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /src
+
+COPY src/EMI.EmployeeManagement.sln .
+COPY src/EMI.EmployeeManagement.API/          EMI.EmployeeManagement.API/
+COPY src/EMI.EmployeeManagement.BLL/          EMI.EmployeeManagement.BLL/
+COPY src/EMI.EmployeeManagement.DAL/          EMI.EmployeeManagement.DAL/
+COPY src/EMI.EmployeeManagement.Entities/     EMI.EmployeeManagement.Entities/
+COPY src/EMI.EmployeeManagement.Common/       EMI.EmployeeManagement.Common/
+COPY src/EMI.EmployeeManagement.Tests/        EMI.EmployeeManagement.Tests/
+
+RUN dotnet restore EMI.EmployeeManagement.Tests/EMI.EmployeeManagement.Tests.csproj
+
+ENTRYPOINT ["dotnet", "test", "EMI.EmployeeManagement.Tests/EMI.EmployeeManagement.Tests.csproj", "--no-restore"]
