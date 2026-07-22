@@ -19,12 +19,12 @@ namespace EMI.EmployeeManagement.API.Extensions
             services.AddScoped<IEmployeeBLL, EmployeeBLL>();
             services.AddScoped<IPositionHistoryBLL, PositionHistoryBLL>();
             services.AddScoped<IAuthBLL, AuthBLL>();
-            services.AddScoped<IAuthDAL, AuthDAL>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register Repository
             services.AddScoped<IEmployeeDAL, EmployeeDAL>();
             services.AddScoped<IPositionHistoryDAL, PositionHistoryDAL>();
+            services.AddScoped<IAuthDAL, AuthDAL>();
 
 
             //Adding the DbContext
@@ -52,9 +52,9 @@ namespace EMI.EmployeeManagement.API.Extensions
 
         private static void AddPolicies(this IServiceCollection services)
         {
-            services.AddCors(optios =>
+            services.AddCors(options =>
             {
-                optios.AddPolicy("newPolicy", app =>
+                options.AddPolicy("newPolicy", app =>
                 {
                     app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
