@@ -5,13 +5,14 @@ namespace EMI.EmployeeManagement.Tests.Helpers;
 
 public static class TestDataBuilder
 {
-    public static CreateEmployeeRequest CreateValidEmployeeRequest(int positionId = 1) =>
+    public static CreateEmployeeRequest CreateValidEmployeeRequest(int positionId = 1, int roleId = 1) =>
         new()
         {
             Name = "John Doe",
             CurrentPositionId = positionId,
             Salary = 50000m,
-            Password = "pass123"
+            Password = "pass123",
+            RoleId = roleId
         };
 
     public static UpdateEmployeeRequest CreateValidUpdateEmployeeRequest(int id) =>

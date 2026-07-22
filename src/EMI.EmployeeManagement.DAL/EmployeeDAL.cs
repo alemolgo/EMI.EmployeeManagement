@@ -16,7 +16,6 @@ namespace EMI.EmployeeManagement.DAL
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-  
         public async Task<int> AddAsync(CreateEmployeeRequest employeeRequest)
         {
             // 1. Validate position exists
@@ -27,23 +26,34 @@ namespace EMI.EmployeeManagement.DAL
             if (!positionExists)
                 throw new DaoException($"Position not found. PositionId: {employeeRequest.CurrentPositionId}");
 
-            // 2. Create employee
+            // 2. Validate role exists
+            var roleExists = await _context.Roles
+                .AsNoTracking()
+                .AnyAsync(r => r.RoleId == employeeRequest.RoleId);
+
+            if (!roleExists)
+                throw new DaoException($"Role not found. RoleId: {employeeRequest.RoleId}");
+
+            // 3. Create employee with role assignment
             var employee = new Employee
             {
                 EmployeeName = employeeRequest.Name,
                 EmployeeSalary = employeeRequest.Salary,
                 EmployeeCurrentPositionId = employeeRequest.CurrentPositionId,
-                EmployeePasswordHash=employeeRequest.Password
+                EmployeePasswordHash = employeeRequest.Password
             };
 
-            // 3. Add to DbSet
+            employee.EmployeeRoles.Add(new EmployeeRole
+            {
+                RoleId = employeeRequest.RoleId
+            });
+
+            // 4. Add to DbSet
             await _context.Employees.AddAsync(employee);
 
             await _context.SaveChangesAsync();
             return employee.EmployeeId;
         }
-
-
 
         public async Task<EmployeeResponse> GetByIdAsync(int id)
         {

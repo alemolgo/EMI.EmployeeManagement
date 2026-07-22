@@ -15,9 +15,10 @@ public class UnitOfWorkTests
         var positionHistoryDal = new PositionHistoryDAL(context);
         var uow = new UnitOfWork(context, employeeDal, positionHistoryDal);
         var position = await TestDataBuilder.SeedPositionAsync(context);
+        var role = await TestDataBuilder.SeedRoleAsync(context, "User");
 
         await uow.BeginTransactionAsync();
-        var request = TestDataBuilder.CreateValidEmployeeRequest(position.PositionId);
+        var request = TestDataBuilder.CreateValidEmployeeRequest(position.PositionId, role.RoleId);
         var id = await uow.Employees.AddAsync(request);
         await uow.PositionHistories.CreateInitialPositionHistoryAsync(id, position.PositionId, DateTime.UtcNow);
         await uow.CommitAsync();

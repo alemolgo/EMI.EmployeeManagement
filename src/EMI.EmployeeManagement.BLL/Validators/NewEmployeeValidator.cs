@@ -65,6 +65,15 @@ namespace EMI.EmployeeManagement.BLL.Validators
                 });
             }
 
+            if (request.RoleId <= 0)
+            {
+                errors.Add(new ValidationErrorItem
+                {
+                    Code = EmployeeValidationErrorEnum.InvalidRole,
+                    Message = "Invalid role id."
+                });
+            }
+
             if (errors.Any())
                 return ValidationResult.Failure(errors.ToArray());
 

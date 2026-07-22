@@ -7,6 +7,7 @@
         InvalidName = 1002,
         InvalidCurrentPositionId = 1003,
         InvalidSalary = 1004,
-        InvalidPassword =1005
+        InvalidPassword =1005,
+        InvalidRole = 1006
     }
 }

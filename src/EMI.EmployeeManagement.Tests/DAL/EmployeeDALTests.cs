@@ -27,8 +27,9 @@ public class EmployeeDALTests
     {
         await using var context = DbContextFactory.Create();
         var position = await TestDataBuilder.SeedPositionAsync(context);
+        var role = await TestDataBuilder.SeedRoleAsync(context, "User");
         var dal = new EmployeeDAL(context);
-        var request = TestDataBuilder.CreateValidEmployeeRequest(position.PositionId);
+        var request = TestDataBuilder.CreateValidEmployeeRequest(position.PositionId, role.RoleId);
 
         var id = await dal.AddAsync(request);
 
@@ -38,6 +39,7 @@ public class EmployeeDALTests
         saved!.EmployeeName.Should().Be("John Doe");
         saved.EmployeeSalary.Should().Be(50000m);
         saved.EmployeeCurrentPositionId.Should().Be(position.PositionId);
+        context.EmployeeRoles.Should().ContainSingle(er => er.EmployeeId == id);
     }
 
     [Fact]
